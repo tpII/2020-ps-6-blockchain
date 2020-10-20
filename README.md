@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python: Getting Started
 
 A barebones Django app, which can easily be deployed to Heroku.
@@ -43,3 +44,6 @@ or
 For more information about using Python on Heroku, see these Dev Center articles:
 
 - [Python on Heroku](https://devcenter.heroku.com/categories/python)
+=======
+2020-ps-6-blockchain
+>>>>>>> 63996be3f6171dca15d2622a8f6831f6c17197b7
