@@ -1,52 +1,131 @@
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
+#include <ESP8266WiFi.h> //    .INCLUDES.
+#include <ESP8266WebServer.h> //webserver
 #include <ESP8266HTTPClient.h>
-#include <ArduinoJson.h>
-//RFID
-#include <SPI.h>
+#include <ArduinoJson.h> //json
+#include <SPI.h> //RFID
 #include <MFRC522.h>
 
-//RFID
-#define SS_PIN 2  //D4
+
+
+#define SS_PIN 2  //RFID D4  .DEFINITIONS.
 #define RST_PIN 0 //D3
 
-//settings._______________________
-//WIFI
-String ssid     = "MovistarFibra-1806E0"; //wifi 2.4ghz config
+
+
+String ssid     = "MovistarFibra-1806E0"; //wifi 2.4ghz config   .SETTINGS.
 String password = "ic3ksvsr5mDrYaJhRAPo"; 
-int serverport = 80;
-//SERVER
+
+int serverport = 80; //SERVER
 WiFiServer server(serverport);
-String heroku_url = "https://peaceful-earth-53515.herokuapp.com";
-String heroku_post_card = "post?";
-HTTPClient http;
 String header;
 String clientCharTemp;
-//RFID
-MFRC522 rfid(SS_PIN, RST_PIN);
-MFRC522::MIFARE_Key key;
-//________________________________
+String location="Neuquen";
 
-//variable._____________________________
-boolean wifiConnected = false;
+MFRC522 rfid(SS_PIN, RST_PIN); //RFID
+MFRC522::MIFARE_Key key;
+
+
+
+boolean wifiConnected = false;  // .VARIABLES.
 int serverConnected = false;
 String cardKey = "PLEASE SCAN A CARD";
-//serial
-char tempchar;
+
+char tempchar; //serial
 String menuCmd="";
 String userInput="";
 String jsonCardKey = "";
-String httpCardKey = "";
-// Current time
-unsigned long currentTime = millis();
-// Previous time
-unsigned long previousTime = 0; 
-// Define timeout time in milliseconds (example: 2000ms = 2s)
-const long timeoutTime = 2000;
-//________________________________
+String httpArgs = "";
 
-//functions.________________________________
-void webserver()
+unsigned long currentTime = millis(); // Current time
+unsigned long previousTime = 0; 
+const long timeoutTime = 2000; // Define timeout time in milliseconds (example: 2000ms = 2s)
+
+
+
+void webserver();   //.FUNCTIONSD.
+void readUserInput();
+void readMenuCmd();
+void showMenuCmd();
+void writeCardkeyInJson();
+void writeCardkeyInHttp();
+void sendToWebsite();
+void infoWifi();
+boolean connectWifi();
+boolean connectWifiSetup();
+void scanRfidCard();
+void showDebug();
+
+
+
+void setup() //.PROGRAM.
+{
+  Serial.begin(9600);
+  Serial.setDebugOutput(true);
+
+  //RFID
+  SPI.begin();
+  rfid.PCD_Init();
+  while(wifiConnected == false)
+  {
+    wifiConnected = connectWifiSetup();
+  }
+  Serial.println("Starting server...");
+  server.begin();
+  serverConnected=1;
+  delay(2000);//delay before kicking things off
+  showMenuCmd();
+}
+
+void loop() 
+{
+  webserver();
+  readMenuCmd();
+  if(menuCmd=="menu") {
+      showMenuCmd();
+    }
+  if(menuCmd=="wifi") {
+      wifiConnected = connectWifi();
+      showMenuCmd();
+    }
+  if(menuCmd=="wifiinfo") {
+      infoWifi();
+      showMenuCmd();
+    }
+  if(menuCmd=="server") {
+      if(wifiConnected)
+      {
+        Serial.println("Starting server...");
+        server.begin();
+        serverConnected = 1;
+        Serial.println("Server address: ");
+        Serial.print(WiFi.localIP());
+        Serial.print(":");
+        Serial.println(serverport);
+      } else {
+        Serial.println("Wifi not connected!");
+      }
+      showMenuCmd();
+    }
+  if(menuCmd=="scan") {
+      scanRfidCard();
+      showMenuCmd();
+    }
+  if(menuCmd=="upload") {
+      writeCardkeyInHttp();
+      sendToWebsite();
+      showMenuCmd();
+    }
+  if(menuCmd=="debug") {
+      showDebug();
+      showMenuCmd();
+    }
+  menuCmd="";
+  delay(1000);
+}
+
+
+
+void webserver()  //.FUNCTIONS.
 {
   if(serverConnected) {
  //server.handleClient();
@@ -179,8 +258,38 @@ void writeCardkeyInJson()
 void writeCardkeyInHttp()
 {
       Serial.println("\nWriting HTTP...");
-      httpCardKey = "CARDKEY=" + cardKey;
+      httpArgs="?";
+      httpArgs+= "cardkey=" + cardKey;
+      httpArgs+= "&";
+      httpArgs+= "location=" + location;
       Serial.println("HTTP DONE");
+}
+void sendToWebsite()
+{
+    HTTPClient http;
+    String heroku_url = "http://peaceful-earth-53515.herokuapp.com/"; //con https no anda
+    String heroku_thumbprint;
+    String httpTempData;
+    httpTempData="cards/add/"; //add card url
+    httpTempData+= httpArgs; //add card variable
+    heroku_url+= httpTempData;  //full url
+  
+    Serial.print("connecting to "); 
+    Serial.println(heroku_url.c_str()); 
+    http.begin(heroku_url.c_str());
+    http.addHeader("content-type","application/x-www-form-urlencoded");
+    int httpCode = http.GET();
+  
+    if(httpCode == HTTP_CODE_OK) {
+      Serial.printf("httpcode: %d\n",httpCode); 
+      httpTempData = http.getString(); //receive data
+      Serial.print("httpTempData"); 
+      Serial.println(heroku_url);
+    }
+    else {
+      Serial.printf("error code: %d\n",httpCode); 
+}
+    http.end();
 }
 void infoWifi()
 {
@@ -269,22 +378,6 @@ boolean connectWifiSetup()
   return state;
 }
 
-void sendToWebsite()
-{
-  String httpTempData;
-  httpTempData="";
-  Serial.println("DATA TO SEND: "); 
-  Serial.println(httpCardKey); 
-  Serial.print("Sending To Website: "); 
-  Serial.println(heroku_url);
-  httpTempData= httpCardKey;
-  http.begin(heroku_url);
-  http.addHeader("content-type","application/x-www-form-urlencoded");
-  http.POST(httpTempData);
-  //http.writeToStream(&Serial);
-  http.end();
-}
-
 void scanRfidCard()
 {
   Serial.println("\nPlace card in front of the RFID SCANNER");
@@ -312,9 +405,9 @@ void scanRfidCard()
     byte letter;
     for (byte i = 0; i < rfid.uid.size; i++) 
     {
-       Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
+       Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : "-");
        Serial.print(rfid.uid.uidByte[i], HEX);
-       cardKeyScanning.concat(String(rfid.uid.uidByte[i] < 0x10 ? " 0" : " "));
+       cardKeyScanning.concat(String(rfid.uid.uidByte[i] < 0x10 ? " 0" : "-"));
        cardKeyScanning.concat(String(rfid.uid.uidByte[i], HEX));
     }
     cardKeyScanning.toUpperCase();
@@ -330,75 +423,8 @@ void showDebug()
   Serial.println("WIFI VAR:");
   Serial.println(ssid);
   Serial.println(password);
+  Serial.println(location);
   Serial.println("KEYCARD VAR:");
   Serial.println(cardKey);
-  Serial.println(httpCardKey);
-}
-
-
-//________________________________
-
-void setup() 
-{
-  Serial.begin(9600);
-  
-  //RFID
-  SPI.begin();
-  rfid.PCD_Init();
-  wifiConnected = connectWifiSetup();
-  if(wifiConnected)
-  {
-    Serial.println("Starting server...");
-    server.begin();
-    serverConnected=1;
-  }
-  delay(2000);//delay before kicking things off
-  showMenuCmd();
-}
-
-void loop() 
-{
-  webserver();
-  readMenuCmd();
-  if(menuCmd=="menu") {
-      showMenuCmd();
-    }
-  if(menuCmd=="wifi") {
-      wifiConnected = connectWifi();
-      showMenuCmd();
-    }
-  if(menuCmd=="wifiinfo") {
-      infoWifi();
-      showMenuCmd();
-    }
-  if(menuCmd=="server") {
-      if(wifiConnected)
-      {
-        Serial.println("Starting server...");
-        server.begin();
-        serverConnected = 1;
-        Serial.println("Server address: ");
-        Serial.print(WiFi.localIP());
-        Serial.print(":");
-        Serial.println(serverport);
-      } else {
-        Serial.println("Wifi not connected!");
-      }
-      showMenuCmd();
-    }
-  if(menuCmd=="scan") {
-      scanRfidCard();
-      showMenuCmd();
-    }
-  if(menuCmd=="upload") {
-      writeCardkeyInHttp();
-      sendToWebsite();
-      showMenuCmd();
-    }
-  if(menuCmd=="debug") {
-      showDebug();
-      showMenuCmd();
-    }
-  menuCmd="";
-  delay(1000);
+  Serial.println(httpArgs);
 }

@@ -15,11 +15,13 @@ def cards(request):
     
 def cards_add(request):
     postedcardkey = request.GET['cardkey']
-    M.cardKeys.append(postedcardkey)
-    context = {'cardKeyss': M.cardKeys}
+    keylocation = request.GET['location']
+    M.addCard(postedcardkey,keylocation)
+    ms = zip(M.locations,M.cardKeys) ##list of lists 0,1
+    context = {'listss': ms}
     return render(request, "cards.html", context)
 
 def cards_clear(request):
-    M.cardKeys = []
+    M.clear()
     return render(request, "cards.html")
 

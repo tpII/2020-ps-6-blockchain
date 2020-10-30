@@ -7,13 +7,13 @@
 <div>
     <h2> last cardkeys scanned:</h2>
     <p>___________________________________</p>
-    {%for ck in cardKeyss%}
-    <h3> {{ ck }}</h3>
-    {% endfor %}
+        {% for l in listss %}
+        <h3>{{ l.0 }}{{ l.1 }}</h3>
+        {% endfor %}
     <p>___________________________________</p>
 </div>
 <div>
-    <a href="/cards/clear"> CLEAR LIST</a>
+    <a href="/cards/clear"> CLEAR LIST </a>
 </div>
 
 {% endblock %}
