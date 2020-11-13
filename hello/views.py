@@ -10,16 +10,28 @@ def index(request):
     return render(request, "index.html")
 
 def cards(request):
-    context = {'cardKeyss': M.cardKeys}
+    cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+    context = {'listss': cardsdata}
     return render(request, "cards.html", context)
     
 def cards_add(request):
-    postedcardkey = request.GET['cardkey']
-    keylocation = request.GET['location']
-    M.addCard(postedcardkey,keylocation)
-    ms = zip(M.locations,M.cardKeys) ##list of lists 0,1
-    context = {'listss': ms}
-    return render(request, "cards.html", context)
+    if (request.method == 'GET' and 'cardkey' in request.GET and 'location' in request.GET):
+        postedcardkey = request.GET['cardkey']
+        keylocation = request.GET['location']
+        if (postedcardkey) is not None:
+            M.addCard(postedcardkey,keylocation)
+            cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+            context = {'listss': cardsdata}
+            return render(request, "cards.html", context)
+        else:
+            cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+            context = {'listss': cardsdata}
+            return render(request, "cards.html", context)
+    else:
+        cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+        context = {'listss': cardsdata}
+        return render(request, "cards.html", context)
+        
 
 def cards_clear(request):
     M.clear()
