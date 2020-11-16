@@ -1,0 +1,13 @@
+add nodes:
+POST json /nodes/register
+{
+    "nodes": ["http://localhost:5001"]
+}
+
+add tx
+POST json /transactions/new
+{
+ "sender": "d4ee26eee15148ee92c6cd394edd974e",
+ "recipient": "someone-other-address",
+ "amount": 5
+}'
