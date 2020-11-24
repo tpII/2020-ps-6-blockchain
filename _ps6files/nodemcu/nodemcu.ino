@@ -18,9 +18,11 @@ int serverport = 80; //SERVER
 WiFiServer server(serverport);
 String header;
 String clientCharTemp;
-String location="Neuquen";
 String nodeurl = "http://ps6blockchain.herokuapp.com/"; //con https no anda
-String nodeuuid = "";
+String nodeuuid = "8422ce0f1fcb49b18d3687c4821346de";
+
+String location="Neuquen";
+String chipid;
 
 MFRC522 rfid(SS_PIN, RST_PIN); //RFID
 MFRC522::MIFARE_Key key;
@@ -60,8 +62,10 @@ void setRecipient();
 void setup() //.PROGRAM.
 {
 	Serial.begin(9600);
-	Serial.setDebugOutput(true);
-
+	Serial.setDebugOutput(true); //chipid
+  char chipidt[32];
+  itoa(ESP.getChipId(),chipidt,10);
+  chipid = chipidt;
 	//RFID
 	SPI.begin();
 	rfid.PCD_Init();
@@ -115,7 +119,7 @@ void loop()
 		showMenuCmd();
 	}
 	if(menuCmd=="upload") {
-		writeCardkeyInHttp();
+		writeCardkeyInJson();
 		sendToWebsite();
 		showMenuCmd();
 	}
@@ -173,7 +177,7 @@ void webserver()  //.FUNCTIONS.
 							} else if (header.indexOf("GET /get?console=scan") >= 0) {
 								scanRfidCard();
 							} else if (header.indexOf("GET /get?console=upload") >= 0) {
-								writeCardkeyInHttp();
+								writeCardkeyInJson();
 								sendToWebsite();
 							}
 
@@ -258,24 +262,26 @@ void setRecipient()
 	readUserInput();
 	nodeuuid=userInput;
 }
-void datetimenow()
+String datetimenow()
 {
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
-	String now = printf("now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);	
+	char now[32];
+	sprintf(now,"%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);	
 	return now;
 }
 void writeCardkeyInJson()
 {
 	Serial.println("\nWriting JSON...");
 	StaticJsonDocument<512> doc; //json lib v6
-	doc["sender"] = CHIP_ID;
-	doc["recipient"] = serveruuid;
+	doc["sender"] = chipid;
+	doc["recipient"] = nodeuuid;
 	doc["amount"] = 1;
 	doc["cardkey"] = cardKey;
 	doc["location"] = location;
 	doc["date"] = datetimenow();
 	serializeJson(doc,jsonArgs);
+  Serial.println(jsonArgs);
 	Serial.println("JSON DONE");
 	//jsonCardKey = "{\"Cardkey\":\"" + cardKey + "\"}";
 }
@@ -283,17 +289,17 @@ void writeCardkeyInHttp()
 {
 	Serial.println("\nWriting HTTP...");
 	httpArgs="?";
-	httpArgs+= "sender=" + CHIP_ID;
+	httpArgs+= "sender=" + chipid;
 	httpArgs+= "&";
-	httpArgs+= "recipient=" + "???";
+	httpArgs+= "recipient=" + nodeuuid;
 	httpArgs+= "&";
-	httpArgs+= "amount=" + "1";
+	httpArgs+= "amount=" "1";
 	httpArgs+= "&";
 	httpArgs+= "cardkey=" + cardKey;
 	httpArgs+= "&";
 	httpArgs+= "location=" + location;
 	httpArgs+= "&";
-	httpArgs+= "date=" + datetimenow;
+	httpArgs+= "date=" + datetimenow();
 	Serial.println("HTTP DONE");
 }
 void sendToWebsite()
@@ -301,7 +307,7 @@ void sendToWebsite()
 	HTTPClient http;
 	String heroku_thumbprint;
 	String httpTempData;
-	httpTempData="transaction/new"; //add card url
+	httpTempData="transactions/new"; //add card url
 	//httpTempData+= httpArgs; //add card variable
 	nodeurl+= httpTempData;  //full url
 

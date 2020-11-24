@@ -31,6 +31,12 @@ def inject_uuid():
     context = {'nodeuuid': node_identifier}
     return context
 
+#alternative
+#@app.route(all)
+#def base():
+#    test = 'Avaible to all'
+#    return render_template('base.html', test=test)
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template("index.html")
