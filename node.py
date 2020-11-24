@@ -26,6 +26,11 @@ node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the Blockchain
 blockchain = Blockchain()
 
+@app.context_processor
+def inject_uuid():
+    context = {'nodeuuid': node_identifier}
+    return context
+
 @app.route('/', methods=['GET'])
 def index():
     return render_template("index.html")

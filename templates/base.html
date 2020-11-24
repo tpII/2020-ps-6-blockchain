@@ -1,31 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Heroku Node</title>
-  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<title>Heroku Node {{ nodeuuid }}</title>
 </head>
 <body>
-<nav>
-  <h3> HEROKU NODE</h3>
-  <div>
-    <ul>
-      <li>
-        <a href="/">Home</a>
-      </li>
-      <li>
-        <a href="/cards">Cards</a>
-      </li>
-      <li>
-        <a href="/chain">Chain</a>
-      </li>
-    </ul>
-  </div>
-    <p>____________________________________________________________________</p>
-</nav>
+<div>
+	<h1>BLOCKCHAIN NODE: </h1><span><h2>{{ nodeuuid }}</h2></span>
+	<a href='/mine'>MINE</a><br><br>
+	<a href='/chain'>CHAIN</a><br><br>
+	<a href='/cards'>CARDS</a><br><br>
+</div>
 
-{% block content %}{% endblock %}
+{% block content %}
+{% endblock %}
 
 </body>
 </html>
