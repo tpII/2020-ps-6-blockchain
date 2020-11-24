@@ -4,12 +4,18 @@ import time
 import datetime
 from textwrap import dedent
 from uuid import uuid4
-from Blockchain import *
 import sys #args
+from models.Blockchain import *
+from models.Cardkey import *
+from flask import Flask, jsonify, request, render_template
 
-from flask import Flask, jsonify, request
-
-#arg1 is port
+#args port
+#if (len(sys.argv) == 3):
+#    myport = int(sys.argv[1])
+#else:
+#    myport = 80
+myport = 80
+myhost = "ps6taller.herokuapp.com"
 
 # Instantiate our Node
 app = Flask(__name__)
@@ -20,6 +26,39 @@ node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the Blockchain
 blockchain = Blockchain()
 
+@app.route('/', methods=['GET'])
+def index():
+    return render_template("index.html")
+
+@app.route('/cards', methods=['GET'])
+def cards():
+    cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+    context = {'listss': cardsdata}
+    return render_template("cards.html", **context)
+
+@app.route('/cards/add/', methods=['GET'])
+def cards_add():
+    if (request.args.get('cardkey') and request.args.get('location')):
+        postedcardkey = request.args.get('cardkey')
+        keylocation = request.args.get('location')
+        if (postedcardkey) is not None:
+            M.addCard(postedcardkey,keylocation)
+            cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+            context = {'listss': cardsdata}
+            return render_template("cards.html", **context)
+        else:
+            cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+            context = {'listss': cardsdata}
+            return render_template("cards.html",**context)
+    else:
+        cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
+        context = {'listss': cardsdata}
+        return render_template("cards.html", **context)
+ 
+@app.route('/cards/clear', methods=['GET'])
+def cards_clear():
+    M.clear()
+    return render_template("cards.html")
 
 @app.route('/chain', methods=['GET'])
 def full_chain():
@@ -118,8 +157,10 @@ def consensus():
 
     return jsonify(response), 200
 
-#port
-myport = int(sys.argv[1])
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=myport)
+    app.run(host=myhost, port=myport)
+	
+
+
+    
+

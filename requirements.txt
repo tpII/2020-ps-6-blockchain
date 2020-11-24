@@ -1,4 +1,5 @@
+flask
 django
-gunicorn
 django-heroku
+gunicorn
 requests
