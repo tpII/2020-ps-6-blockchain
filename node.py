@@ -5,9 +5,10 @@ import datetime
 from textwrap import dedent
 from uuid import uuid4
 import sys #args
-from models.Blockchain import *
-from models.Cardkey import *
+from models.blockchain import *
+from models.db import *
 from flask import Flask, jsonify, request, render_template
+from flask_sqlalchemy import SQLAlchemy
 
 #args port
 #if (len(sys.argv) == 3):
@@ -17,8 +18,21 @@ from flask import Flask, jsonify, request, render_template
 myport = 80
 myhost = "ps6taller.herokuapp.com"
 
+
 # Instantiate our Node
-app = Flask(__name__)
+app = Flask(__name__) #init app
+
+ENV = 'dev'
+if ENV == 'dev':
+    app.debug = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:admin@localhost/ps6db' #db config p://user:password@url/dbname
+else:
+    app.debug = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = ''
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app) #init db
 
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
@@ -45,9 +59,9 @@ def index():
 @app.route('/chain', methods=['GET'])
 def full_chain():
     response = {
-        'chain': blockchain.chain,
-        'length': len(blockchain.chain),
-    }
+            'chain': blockchain.chain,
+            'length': len(blockchain.chain),
+            }
     return jsonify(response), 200
 
 # add tx enpoinsd
@@ -62,7 +76,7 @@ def new_transaction():
 
     # Create a new Transaction
     index = blockchain.new_transaction(
-        values['sender'], values['recipient'], values['amount'], values['cardkey'], values['location'], values['date'])
+            values['sender'], values['recipient'], values['amount'], values['cardkey'], values['location'], values['date'])
 
     response = {'message': f'Transaction will be added to Block {index}, broadcasting to other nodes'}
 
@@ -73,7 +87,7 @@ def new_transaction():
         anodeurl = anode
         anodetx = f'http://{anodeurl}/transactions/new'
         aresponse = requests.post(anodetx, data=values, headers=headers)
-    
+
     return jsonify(response), 201
 
 # mining endpoint
@@ -92,25 +106,25 @@ def mine():
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
     blockchain.new_transaction(
-        sender="0",
-        recipient=node_identifier,
-        amount=0,  #no reward
-        cardkey=0,
-        location=0,
-        date=str(datetime.datetime.now()).split('.')[0], #unix time
-    )
+            sender="0",
+            recipient=node_identifier,
+            amount=0,  #no reward
+            cardkey=0,
+            location=0,
+            date=str(datetime.datetime.now()).split('.')[0], #unix time
+            )
 
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
     block = blockchain.new_block(proof, previous_hash)
 
     response = {
-        'message': "New Block Forged",
-        'index': block['index'],
-        'transactions': block['transactions'],
-        'proof': block['proof'],
-        'previous_hash': block['previous_hash'],
-    }
+            'message': "New Block Forged",
+            'index': block['index'],
+            'transactions': block['transactions'],
+            'proof': block['proof'],
+            'previous_hash': block['previous_hash'],
+            }
     return jsonify(response), 200
 #nodes
 @app.route('/nodes/register', methods=['POST'])
@@ -125,9 +139,9 @@ def register_nodes():
         blockchain.register_node(node)
 
     response = {
-        'message': 'New nodes have been added',
-        'total_nodes': list(blockchain.nodes),
-    }
+            'message': 'New nodes have been added',
+            'total_nodes': list(blockchain.nodes),
+            }
     return jsonify(response), 201
 
 
@@ -137,21 +151,21 @@ def consensus():
 
     if replaced:
         response = {
-            'message': 'Our chain was replaced',
-            'new_chain': blockchain.chain
-        }
+                'message': 'Our chain was replaced',
+                'new_chain': blockchain.chain
+                }
     else:
         response = {
-            'message': 'Our chain is authoritative',
-            'chain': blockchain.chain
-        }
+                'message': 'Our chain is authoritative',
+                'chain': blockchain.chain
+                }
 
-    return jsonify(response), 200
+        return jsonify(response), 200
 
 if __name__ == '__main__':
     app.run(host=myhost, port=myport)
-	
 
 
-    
+
+
 

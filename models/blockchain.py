@@ -1,4 +1,3 @@
-#from django.db import models
 import hashlib
 import json
 from textwrap import dedent

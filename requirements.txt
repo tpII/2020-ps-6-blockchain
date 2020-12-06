@@ -1,8 +1,7 @@
 flask
-django
-django-heroku
 gunicorn
 requests
 psycopg2
 psycopg2-binary
-flask-sqlalchemy
+flask-SQLAlchemy
+SQLAlchemy

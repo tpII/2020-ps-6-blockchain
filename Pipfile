@@ -4,11 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django-heroku = "*"
 gunicorn = "*"
 requests = "*"
 Flask = "*"
-Django = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
 flask-sqlalchemy = "*"
