@@ -210,7 +210,8 @@ void nodemcuWebserver()  //.FUNCTIONS.
 							} else if (clientHeader.indexOf("GET /get?console=scan") >= 0) {
 								scanRfidCard();
 								clientCharTemp+= "<br> Scan command completed";
-							} else if (clientHeader.indexOf("GET /get?console=sendto") >= 0) {
+               //sendto should be seperated into 2 cmd. one for recipient and other for website
+							} else if (clientHeader.indexOf("GET /get?console=sendto") >= 0) { 
                 clientCharTemp+= "<br>!THIS COMMAND IS NOT WORKING YET!";
 								clientCharTemp+= "<br>Type recipient of tx and website to carry it";
 								clientCharTemp+= "<br>[recipient]_[url]_";
@@ -330,7 +331,7 @@ String showMenu()
 	menustr += "\n<br>wifiinfo : show connected wifi info";
 	menustr += "\n<br>server : start or restart server";
 	menustr += "\n<br>scan : scan a card, the LED of the nodemcu will turn blue and wait for a scan";
-	menustr += "\n<br>sendto : set the website and recipient to send data";
+	//menustr += "\n<br>sendto : set the website and recipient to send data";
 	menustr += "\n<br>upload : upload card rfid to website";
 	menustr += "\n<br>debug : show debug info (not on webserver)";
 	menustr += "\n<br>______________________________________________________";
@@ -556,7 +557,7 @@ boolean connectWifiSetup()
 }
 
 /**
- * scan the rfid card in cardkey
+ * scan the rfid cardkey in cardkey
  */
 void scanRfidCard()
 {

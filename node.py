@@ -26,6 +26,7 @@ node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the Blockchain
 blockchain = Blockchain()
 
+# context for all routes
 @app.context_processor
 def inject_uuid():
     context = {'nodeuuid': node_identifier}
@@ -40,36 +41,6 @@ def inject_uuid():
 @app.route('/', methods=['GET'])
 def index():
     return render_template("index.html")
-
-@app.route('/cards', methods=['GET'])
-def cards():
-    cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
-    context = {'listss': cardsdata}
-    return render_template("cards.html", **context)
-
-@app.route('/cards/add/', methods=['GET'])
-def cards_add():
-    if (request.args.get('cardkey') and request.args.get('location')):
-        postedcardkey = request.args.get('cardkey')
-        keylocation = request.args.get('location')
-        if (postedcardkey) is not None:
-            M.addCard(postedcardkey,keylocation)
-            cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
-            context = {'listss': cardsdata}
-            return render_template("cards.html", **context)
-        else:
-            cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
-            context = {'listss': cardsdata}
-            return render_template("cards.html",**context)
-    else:
-        cardsdata = zip(M.locations,M.cardKeys) ##list of lists 0,1
-        context = {'listss': cardsdata}
-        return render_template("cards.html", **context)
- 
-@app.route('/cards/clear', methods=['GET'])
-def cards_clear():
-    M.clear()
-    return render_template("cards.html")
 
 @app.route('/chain', methods=['GET'])
 def full_chain():
@@ -93,7 +64,16 @@ def new_transaction():
     index = blockchain.new_transaction(
         values['sender'], values['recipient'], values['amount'], values['cardkey'], values['location'], values['date'])
 
-    response = {'message': f'Transaction will be added to Block {index}'}
+    response = {'message': f'Transaction will be added to Block {index}, broadcasting to other nodes'}
+
+   # find a way to broadcast tx to nodes
+   # mutliple response, use socket? or multiple route
+    headers = {'Content-type': 'application/json; charset=UTF-8'}
+    for anode in list(blockchain.nodes):
+        anodeurl = anode
+        anodetx = f'http://{anodeurl}/transactions/new'
+        aresponse = requests.post(anodetx, data=values, headers=headers)
+    
     return jsonify(response), 201
 
 # mining endpoint
