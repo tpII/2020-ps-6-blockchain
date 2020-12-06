@@ -30,7 +30,7 @@ class Transaction(db.Model):
     date = db.Column(db.String(200))
     index = db.Column(db.Integer, db.ForeignKey('block.index'))
 
-    def __init__(self, sender, recipient, amount, cardkey, location, date):
+    def __init__(self, sender, recipient, amount, cardkey, location, date, index):
         self.sender = sender
         self.recipient = recipient
         self.amount = amount

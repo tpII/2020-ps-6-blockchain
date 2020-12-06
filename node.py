@@ -117,6 +117,15 @@ def mine():
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
     block = blockchain.new_block(proof, previous_hash)
+    
+    #add block to db
+    tableblock = Block(block['index'],block['timestamp'] ,block['proof'], block['previous_hash'])
+    txlist = block['transactions']
+    for tx in txlist:
+        tabletx = Transaction(tx['sender'], tx['recipient'], tx['amount'], tx['cardkey'], tx['location'], tx['date'], block['index'])
+        db.session.add(tableblock)
+        db.session.add(tabletx)
+        db.session.commit()
 
     response = {
             'message': "New Block Forged",
