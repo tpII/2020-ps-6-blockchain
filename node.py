@@ -78,6 +78,30 @@ def inject_uuid():
 def index():
     return render_template("index.html")
 
+@app.route('/agent', methods=['GET'])
+def agent():
+    value = request.args.get("address")
+    agent_txs = []
+    for b in blockchain.chain:
+        txs = list(b['transactions'])
+        for tx in txs:
+            if tx['sender'] or tx['recipient'] == value:
+                agent_txs.append(tx)
+    total_txs = len(agent_txs)
+    return render_template("agent.html", agent=value, agent_txs=agent_txs, total_txs=total_txs)
+
+@app.route('/card', methods=['GET'])
+def card():
+    value = request.args.get("cardkey")
+    card_txs = []
+    for b in blockchain.chain:
+        txs = list(b['transactions'])
+        for tx in txs:
+            if tx['cardkey'] == value:
+                card_txs.append(tx)
+    total_hops = len(card_txs)
+    return render_template("card.html", card=value, card_txs=card_txs, total_hops=total_hops)
+
 @app.route('/chain', methods=['GET'])
 def full_chain():
     response = {

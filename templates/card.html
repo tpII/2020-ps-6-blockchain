@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}search{% endblock %}
+
+{% block content %}
+</form>
+</div>
+</main>
+<h2> {{ card }} </h2>
+<div class="jumbotron d-flex text-center">
+	<table class="table table-bordered table-hover">
+		<thead>
+			<tr>
+				<th>sender</th>
+				<th>cardkey</th>
+				<th>locations</th>
+				<th>date</th>
+				<th>total hops: {{total_hops}}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for tx in card_txs %}
+			<tr>
+				<td>{{ tx.sender }}</td>
+				<td>{{ tx.cardkey }}</td>
+				<td>{{ tx.location }}</td>
+				<td>{{ tx.date }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+</div>
+{% endblock %}
+
