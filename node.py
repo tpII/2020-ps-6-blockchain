@@ -22,7 +22,7 @@ myhost = "ps6taller.herokuapp.com"
 # Instantiate our Node
 app = Flask(__name__) #init app
 
-ENV = 'dev'
+ENV = 'prod'
 if ENV == 'dev':
     app.debug = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:admin@localhost/ps6db' #db config p://user:password@url/dbname
