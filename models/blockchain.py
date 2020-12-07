@@ -14,7 +14,7 @@ class Blockchain(object):
         self.current_transactions = []  # list of tx / tx mempool
 
         # Create the genesis block
-        self.new_block(proof=100, previous_hash=1)
+        #self.new_block(proof=100, previous_hash=1)
         # hold the list of nodes. This is a cheap way of ensuring that the addition of new nodes is idempotent—meaning that no matter how many times we add a specific node, it appears exactly once.
         self.nodes = set()
 
