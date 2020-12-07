@@ -105,12 +105,12 @@ class Blockchain(object):
          """
 
         block = {
-            'index': index,
-            'timestamp': timestamp,
-            'transactions': self.current_transactions,
-            'proof': proof,
-            'previous_hash': previous_hash,
-        }
+                'index': index,
+                'timestamp': timestamp,
+                'transactions': self.current_transactions,
+                'proof': proof,
+                'previous_hash': previous_hash,
+                }
 
         # Reset the current list of transactions
         self.current_transactions = []
@@ -128,12 +128,12 @@ class Blockchain(object):
          """
 
         block = {
-            'index': len(self.chain) + 1,
-            'timestamp': time(),
-            'transactions': self.current_transactions,
-            'proof': proof,
-            'previous_hash': previous_hash or self.hash(self.chain[-1]),
-        }
+                'index': len(self.chain) + 1,
+                'timestamp': time(),
+                'transactions': self.current_transactions,
+                'proof': proof,
+                'previous_hash': previous_hash or self.hash(self.chain[-1]),
+                }
 
         # Reset the current list of transactions
         self.current_transactions = []
@@ -161,7 +161,7 @@ class Blockchain(object):
             'cardkey': cardkey,
             'location': location,
             'date': date,
-        })
+            })
 
         return self.last_block['index'] + 1
 

@@ -294,8 +294,8 @@ def consensus():
                 'chain': blockchain.chain,
                 }
 
-        #return jsonify(response), 200
-        return render_template("index.html")
+    return jsonify(response), 200
+    #return render_template("index.html")
 
 if __name__ == '__main__':
     app.run(host=myhost, port=myport)
