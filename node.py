@@ -43,7 +43,7 @@ blockchain = Blockchain()
 
 #load db data
 with app.app_context():
-    if query(func.count(Block.index)) == 0: #if db has no blockchain, create one, make genesis block
+    if db.session.query(func.count(Block.index)) == 0: #if db has no blockchain, create one, make genesis block
         genesis = blockchain.new_block(proof=100, previous_hash=1)
         tableblock = Block(genesis['index'], genesis['timestamp'], genesis['proof'], genesis['previous_hash'])
         db.session.add(tableblock)
