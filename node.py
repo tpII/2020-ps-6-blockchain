@@ -22,7 +22,7 @@ myhost = "ps6taller.herokuapp.com"
 # Instantiate our Node
 app = Flask(__name__) #init app
 
-ENV = 'prod'
+ENV = 'dev'
 if ENV == 'dev':
     app.debug = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:admin@localhost/ps6db' #db config p://user:password@url/dbname
@@ -46,8 +46,6 @@ with app.app_context():
     i = 2
     for ablock in Block.query.all():
         ablocki = ablock.index
-        print(ablock.index)
-        print(ablock.proof)
         if ablocki  == i:
             for atx in db.session.query(Transaction).filter_by(index=i):
                 blockchain.new_transaction(atx.sender, atx.recipient, atx.amount, atx.cardkey, atx.location, atx.date)
@@ -59,7 +57,7 @@ with app.app_context():
 # context for all routes
 @app.context_processor
 def inject_uuid():
-    context = {'nodeuuid': node_identifier}
+    context = {'node_identifier': node_identifier}
     return context
 
 #alternative
@@ -79,6 +77,18 @@ def full_chain():
             'length': len(blockchain.chain),
             }
     return jsonify(response), 200
+
+@app.route('/chain/u', methods=['GET'])
+def user_full_chain():
+    response = {
+            'chain': blockchain.chain,
+            'length': len(blockchain.chain),
+            }
+    return render_template("chain.html",response=response)
+
+@app.route('/transactions', methods=['GET'])
+def transaction_page():
+    return render_template("transaction.html")
 
 # add tx enpoinsd
 @app.route('/transactions/new', methods=['POST'])
@@ -106,11 +116,33 @@ def new_transaction():
 
     return jsonify(response), 201
 
+@app.route('/transactions/new/u', methods=['POST'])
+def user_new_transaction():
+    values = {
+        'sender': node_identifier,
+        'recipient': request.form.get('recipient'),
+        'amount': request.form.get('amount'),
+        'cardkey': 0,
+        'location': 0,
+        'date': str(datetime.datetime.now()).split('.')[0], #unix time
+    }
+
+    # Check that the required fields are in the POST'ed data
+    required = ['sender', 'recipient', 'amount', 'cardkey', 'location', 'date']
+    if not all(k in values for k in required):
+        return 'Missing values', 400
+
+    # Create a new Transaction
+    index = blockchain.new_transaction(
+        values['sender'], values['recipient'], values['amount'], values['cardkey'], values['location'], values['date'])
+
+    response = {'message': f'Transaction will be added to Block {index}'}
+    return render_template("index.html",values=values,index=index) ,201
+
 # mining endpoint
 # Calculate the Proof of Work
 # Reward the miner (us) by adding a transaction granting us 1 coin
 # Forge the new Block by adding it to the chain
-
 
 @app.route('/mine', methods=['GET'])
 def mine():
@@ -151,7 +183,72 @@ def mine():
             'previous_hash': block['previous_hash'],
             }
     return jsonify(response), 200
+
+@app.route('/mine/u', methods=['GET'])
+def user_mine():
+    # We run the proof of work algorithm to get the next proof...
+    last_block = blockchain.last_block
+    last_proof = last_block['proof']
+    proof = blockchain.proof_of_work(last_proof)
+
+    # We must receive a reward for finding the proof.
+    # The sender is "0" to signify that this node has mined a new coin.
+    blockchain.new_transaction(
+        sender="0",
+        recipient=node_identifier,
+        amount=0,  #no reward
+        cardkey=0,
+        location=0,
+        date=str(datetime.datetime.now()).split('.')[0], #unix time
+    )
+
+    # Forge the new Block by adding it to the chain
+    previous_hash = blockchain.hash(last_block)
+    block = blockchain.new_block(proof, previous_hash)
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain),
+    }
+    response2 = {
+        'message': "New Block Forged",
+        'index': block['index'],
+        'transactions': block['transactions'],
+        'proof': block['proof'],
+        'previous_hash': block['previous_hash'],
+    }
+    return render_template("chain.html",response=response,response2=response2)
+
 #nodes
+@app.route('/nodes', methods=['GET'])
+def form():
+    return render_template("form.html")
+
+@app.route('/transactions/test', methods=['POST'])
+def testo():
+    response = {
+        'amount': request.form.get('amount'),
+        'recipient': request.form.get('recipient'),
+    }
+    return jsonify(response),200
+
+@app.route('/nodes/register/u', methods=['POST'])
+def user_register_nodes():
+    values = {
+        'nodes': request.form.get('address'),
+    }
+    nodes = values.get('nodes')
+    if nodes is None:
+        return "Error: Please supply a valid list of nodes", 400
+
+    blockchain.register_node(nodes)
+    parsed_url = urlparse(nodes)
+    response = {
+        'message': 'New nodes have been added',
+        'IP': urlparse(nodes),
+        'total_nodes': list(blockchain.nodes),
+    }
+    return jsonify(response), 201
+
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():
     values = request.get_json()

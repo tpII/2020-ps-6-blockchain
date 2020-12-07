@@ -9,10 +9,7 @@
     <title>Blockchain</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/sticky-footer-navbar/">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-    <script>
-       window.jQuery || document.write('<script src="assets/dist/js/jquery.js"><\/script>');
-    </script>
+
     <!-- Bootstrap core CSS -->
 <!-- <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
@@ -35,7 +32,6 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   </head>
   <body class="d-flex flex-column h-100">
     <header>
@@ -63,54 +59,18 @@
 	  </div><!-- /.navbar-collapse -->
 	</div><!-- /.container-fluid -->
   </nav>
-  <script type="text/javascript"> 
-    $(window).load(function(){
-      var lpm = {{values|safe}};
-      json_data = JSON.stringify(lpm);
-      $(".modal-body").text(json_data); 
-      $(".modal-title").append({{index}});
-    $('#exampleModal').modal('show');
-
-    }); 
-  </script>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="flex-shrink-0">
-{% if values != undefined %}
-
-
-  <!-- Modal -->
-  
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="false">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Transaccion agregada en el bloque </h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"">Aceptar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  {% endif %}
 	<div class="jumbotron d-flex text-center">
-		<div class="container">
-			<div class="btn-group btn-group-lg" role="group" aria-label="...">
-				<a href="/mine/u" class="btn btn-default" role="button">MINE</a>
-				<a href="/chain/u" class="btn btn-default" role="button">CHAIN</a>
-				<a href="/nodes" class="btn btn-default" role="button">NODES</a>
-				<a href="/transactions" class="btn btn-default" role="button">TRANSACTIONS</a>
-			</div>
-		</div>
+        <form class="form-inline" action="/nodes/register/u" method="POST">
+            <div class="form-group">
+              <label for="address">Link</label>
+              <input type="text" class="form-control" id="address" placeholder="localhost" name="address">
+            </div>
+            <button type="submit" class="btn btn-default">Registrar</button>
+          </form>
 	  </div>
 </main>
 

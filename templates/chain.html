@@ -15,6 +15,7 @@
     </script>
     <!-- Bootstrap core CSS -->
 <!-- <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
     <style>
@@ -36,6 +37,46 @@
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {packages:["orgchart"]});
+      google.charts.setOnLoadCallback(drawChart);
+
+      var aux3= {{response|safe}};
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Nodo-');
+        data.addColumn('string', 'ToolTip');
+        var auxiliar = {{response.chain|safe}};
+        // For each orgchart box, provide the name, manager, and tooltip to show.
+        data.addRows([['CHAIN','','']]);
+        for(var i=0;i<auxiliar.length;i++){
+          data.addRows([[{'v':i.toString(), 'f': 'Index: ' +auxiliar[i].index + '<br>' + 'Proof: ' + auxiliar[i].proof + '<br>' + 'Timestamp: ' + auxiliar[i].timestamp + '<br>' + 'Previous Hash: ' +  auxiliar[i].previous_hash},'CHAIN','']]);
+          if (auxiliar[i].transactions.length>0){
+            for(var j=0;j<auxiliar[i].transactions.length;j++){
+              if (j==0){
+                data.addRows([[{'v': i.toString() + 'T' + j.toString(), 'f': 'Transaction: ' + j.toString() + '<br>' + 
+              'Amount: ' + auxiliar[i].transactions[j].amount + '<br>' + 'CardKey: ' + auxiliar[i].transactions[j].cardkey + '<br>' +
+              'Date: ' + auxiliar[i].transactions[j].date + '<br>' + 'Location: ' + auxiliar[i].transactions[j].location + '<br>' + 
+              'Recipient: ' + auxiliar[i].transactions[j].recipient + '<br>' + 'Sender: ' + auxiliar[i].transactions[j].sender },i.toString(),'']]);
+              }else{
+                data.addRows([[{'v': i.toString() + 'T' + j.toString(), 'f': 'Transaction: ' + j.toString() + '<br>' + 
+              'Amount: ' + auxiliar[i].transactions[j].amount + '<br>' + 'CardKey: ' + auxiliar[i].transactions[j].cardkey + '<br>' +
+              'Date: ' + auxiliar[i].transactions[j].date + '<br>' + 'Location: ' + auxiliar[i].transactions[j].location + '<br>' + 
+              'Recipient: ' + auxiliar[i].transactions[j].recipient + '<br>' + 'Sender: ' + auxiliar[i].transactions[j].sender },i.toString() + 'T' + (j-1).toString(),'']]);
+              }
+
+            }
+          }  
+        }
+
+        
+        // Create the chart.
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+        // Draw the chart, setting the allowHtml option to true for the tooltips.
+        chart.draw(data, {'allowHtml':true});
+      }
+   </script>
   </head>
   <body class="d-flex flex-column h-100">
     <header>
@@ -50,7 +91,7 @@
 		  <span class="icon-bar"></span>
 		  <span class="icon-bar"></span>
 		</button>
-		<a class="navbar-brand" href="#">BLOCKCHAIN NODE</a>
+		<a class="navbar-brand" href="/">BLOCKCHAIN NODE</a>
 	  </div>
   
 	  <!-- Collect the nav links, forms, and other content for toggling -->
@@ -65,58 +106,46 @@
   </nav>
   <script type="text/javascript"> 
     $(window).load(function(){
-      var lpm = {{values|safe}};
+      var lpm = {{response2|safe}};
       json_data = JSON.stringify(lpm);
       $(".modal-body").text(json_data); 
-      $(".modal-title").append({{index}});
     $('#exampleModal').modal('show');
 
     }); 
   </script>
 </header>
-
 <!-- Begin page content -->
 <main role="main" class="flex-shrink-0">
-{% if values != undefined %}
+<!-- Button trigger modal -->
+{% if response2 != undefined %}
 
 
-  <!-- Modal -->
-  
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="false">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Transaccion agregada en el bloque </h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"">Aceptar</button>
-        </div>
+<!-- Modal -->
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="false">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Nodo agregado!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal"">Aceptar</button>
       </div>
     </div>
   </div>
-  
-  {% endif %}
+</div>
+
+{% endif %}
 	<div class="jumbotron d-flex text-center">
-		<div class="container">
-			<div class="btn-group btn-group-lg" role="group" aria-label="...">
-				<a href="/mine/u" class="btn btn-default" role="button">MINE</a>
-				<a href="/chain/u" class="btn btn-default" role="button">CHAIN</a>
-				<a href="/nodes" class="btn btn-default" role="button">NODES</a>
-				<a href="/transactions" class="btn btn-default" role="button">TRANSACTIONS</a>
-			</div>
-		</div>
-	  </div>
+        <div id="chart_div" style="overflow-x: scroll;"></div>
+  </div>
 </main>
-
-
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
       <script>window.jQuery || document.write('<script src="../assets/js/vendor/jquery.slim.min.js"><\/script>')</script><script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 </html>
-
-

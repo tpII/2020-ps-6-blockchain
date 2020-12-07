@@ -9,10 +9,7 @@
     <title>Blockchain</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/sticky-footer-navbar/">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-    <script>
-       window.jQuery || document.write('<script src="assets/dist/js/jquery.js"><\/script>');
-    </script>
+
     <!-- Bootstrap core CSS -->
 <!-- <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
@@ -35,7 +32,6 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="sticky-footer-navbar.css" rel="stylesheet">
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   </head>
   <body class="d-flex flex-column h-100">
     <header>
@@ -63,54 +59,44 @@
 	  </div><!-- /.navbar-collapse -->
 	</div><!-- /.container-fluid -->
   </nav>
-  <script type="text/javascript"> 
-    $(window).load(function(){
-      var lpm = {{values|safe}};
-      json_data = JSON.stringify(lpm);
-      $(".modal-body").text(json_data); 
-      $(".modal-title").append({{index}});
-    $('#exampleModal').modal('show');
-
-    }); 
-  </script>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="flex-shrink-0">
-{% if values != undefined %}
-
-
-  <!-- Modal -->
-  
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="false">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Transaccion agregada en el bloque </h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal"">Aceptar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  {% endif %}
 	<div class="jumbotron d-flex text-center">
-		<div class="container">
-			<div class="btn-group btn-group-lg" role="group" aria-label="...">
-				<a href="/mine/u" class="btn btn-default" role="button">MINE</a>
-				<a href="/chain/u" class="btn btn-default" role="button">CHAIN</a>
-				<a href="/nodes" class="btn btn-default" role="button">NODES</a>
-				<a href="/transactions" class="btn btn-default" role="button">TRANSACTIONS</a>
-			</div>
-		</div>
+        <form class="form" action="/transactions/new/u" method="POST">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="sender">Sender</label>
+                <input type="text" class="form-control" id="sender" placeholder="Nodo actual" readonly>
+              </div>
+              <div class="form-group col-md-6">
+                <label for="recipient">Recipient</label>
+                <input type="text" class="form-control" id="recipient" placeholder= "Recipient" name="recipient">
+              </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="amount">Amount</label>
+                  <input type="number" class="form-control" id="amount" placeholder="0" name="amount">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="cardkey">Card key</label>
+                  <input type="text" class="form-control" id="cardkey" placeholder="0" readonly>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="location">Location</label>
+                  <input type="text" class="form-control" id="location" placeholder="0" readonly>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="date">Date</label>
+                  <input type="text" class="form-control" id="date" placeholder= "Fecha actual" readonly>
+                </div>
+              </div>
+            <button type="submit" class="btn btn-primary">Registrar</button>
+          </form>
 	  </div>
 </main>
 
@@ -118,5 +104,3 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
       <script>window.jQuery || document.write('<script src="../assets/js/vendor/jquery.slim.min.js"><\/script>')</script><script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 </html>
-
-
