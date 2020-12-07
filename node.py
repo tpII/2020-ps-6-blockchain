@@ -17,7 +17,7 @@ from sqlalchemy import func
 #else:
 #    myport = 80
 myport = 80
-myhost = "ps6taller.herokuapp.com"
+myhost = "ps6blockchain.herokuapp.com"
 
 
 # Instantiate our Node
