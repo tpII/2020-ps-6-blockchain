@@ -50,7 +50,7 @@ with app.app_context():
         tableblock = Block(genesis['index'], genesis['timestamp'], genesis['proof'], genesis['previous_hash'])
         db.session.add(tableblock)
         db.session.commit()
-    i = 2
+    i = 1
     for ablock in Block.query.all():
         ablocki = ablock.index
         if ablocki  == i:
