@@ -7,7 +7,7 @@ from uuid import uuid4
 import sys #args
 from models.blockchain import *
 from models.db import *
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
@@ -23,7 +23,7 @@ myhost = "ps6taller.herokuapp.com"
 # Instantiate our Node
 app = Flask(__name__) #init app
 
-ENV = 'prod'
+ENV = 'prod'   #change to dev for development, change to prod to deploy
 if ENV == 'dev':
     app.debug = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:admin@localhost/ps6db' #db config p://user:password@url/dbname
@@ -44,19 +44,20 @@ blockchain = Blockchain()
 
 #load db data
 with app.app_context():
+    i = 1
     db_blockchain_length = db.session.query(Block).count()
     if db_blockchain_length == 0: #if db has no blockchain, create one, make genesis block
         genesis = blockchain.new_block(proof=100, previous_hash=1)
         tableblock = Block(genesis['index'], genesis['timestamp'], genesis['proof'], genesis['previous_hash'])
         db.session.add(tableblock)
         db.session.commit()
-    i = 1
+        i = 2
     for ablock in Block.query.all():
         ablocki = ablock.index
         if ablocki  == i:
             for atx in db.session.query(Transaction).filter_by(index=i):
                 blockchain.new_transaction(atx.sender, atx.recipient, atx.amount, atx.cardkey, atx.location, atx.date)
-            blockchain.new_block(ablock.proof, ablock.previous_hash)
+            blockchain.load_block(ablock.index, ablock.timestamp, ablock.proof, ablock.previous_hash)
         else:
             print(f'error block index {ablocki} is not i {i}')
         i=i+1
@@ -91,11 +92,12 @@ def user_full_chain():
             'chain': blockchain.chain,
             'length': len(blockchain.chain),
             }
-    return render_template("chain.html",response=response)
+    return render_template("chain.html", response=response)
 
 @app.route('/transactions', methods=['GET'])
 def transaction_page():
-    return render_template("transaction.html")
+    mempool = blockchain.current_transactions
+    return render_template("transaction.html", mempool=mempool)
 
 # add tx enpoinsd
 @app.route('/transactions/new', methods=['POST'])
@@ -144,7 +146,8 @@ def user_new_transaction():
         values['sender'], values['recipient'], values['amount'], values['cardkey'], values['location'], values['date'])
 
     response = {'message': f'Transaction will be added to Block {index}'}
-    return render_template("index.html",values=values,index=index) ,201
+    mempool = blockchain.current_transactions
+    return render_template("transaction.html",values=values,index=index,mempool=mempool) ,201
 
 # mining endpoint
 # Calculate the Proof of Work
@@ -228,7 +231,8 @@ def user_mine():
 #nodes
 @app.route('/nodes', methods=['GET'])
 def form():
-    return render_template("form.html")
+    nodes = list(blockchain.nodes)
+    return render_template("form.html", nodes=nodes)
 
 @app.route('/transactions/test', methods=['POST'])
 def testo():
@@ -254,7 +258,8 @@ def user_register_nodes():
         'IP': urlparse(nodes),
         'total_nodes': list(blockchain.nodes),
     }
-    return jsonify(response), 201
+    nodesl= list(blockchain.nodes)
+    return render_template("form.html", nodes=nodesl)
 
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():

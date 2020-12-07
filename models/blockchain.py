@@ -93,6 +93,31 @@ class Blockchain(object):
 
     # BLOCKS
 
+    def load_block(self, index, timestamp, proof, previous_hash):
+        # Creates a new Block and adds it to the chain
+        """
+         Load a Block in the Blockchain
+         :param index: <int> Index of block
+         :param timestamp: <int> Timestamp generated when block was created
+         :param proof: <int> The proof given by the Proof of Work algorithm
+         :param previous_hash: (Optional) <str> Hash of previous Block
+         :return: <dict> Block loaded
+         """
+
+        block = {
+            'index': index,
+            'timestamp': timestamp,
+            'transactions': self.current_transactions,
+            'proof': proof,
+            'previous_hash': previous_hash,
+        }
+
+        # Reset the current list of transactions
+        self.current_transactions = []
+
+        self.chain.append(block)
+        return block
+
     def new_block(self, proof, previous_hash=None):
         # Creates a new Block and adds it to the chain
         """
