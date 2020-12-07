@@ -85,7 +85,7 @@ def agent():
     for b in blockchain.chain:
         txs = list(b['transactions'])
         for tx in txs:
-            if tx['sender'] or tx['recipient'] == value:
+            if tx['sender'] == value or tx['recipient'] == value:
                 agent_txs.append(tx)
     total_txs = len(agent_txs)
     return render_template("agent.html", agent=value, agent_txs=agent_txs, total_txs=total_txs)
