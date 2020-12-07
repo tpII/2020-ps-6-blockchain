@@ -34,11 +34,27 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app) #init db
 
+
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
+
+#load db data
+with app.app_context():
+    i = 2
+    for ablock in Block.query.all():
+        ablocki = ablock.index
+        print(ablock.index)
+        print(ablock.proof)
+        if ablocki  == i:
+            for atx in db.session.query(Transaction).filter_by(index=i):
+                blockchain.new_transaction(atx.sender, atx.recipient, atx.amount, atx.cardkey, atx.location, atx.date)
+            blockchain.new_block(ablock.proof, ablock.previous_hash)
+        else:
+            print(f'error block index {ablocki} is not i {i}')
+        i=i+1
 
 # context for all routes
 @app.context_processor
