@@ -128,13 +128,13 @@ def new_transaction():
 @app.route('/transactions/new/u', methods=['POST'])
 def user_new_transaction():
     values = {
-        'sender': node_identifier,
-        'recipient': request.form.get('recipient'),
-        'amount': request.form.get('amount'),
-        'cardkey': 0,
-        'location': 0,
-        'date': str(datetime.datetime.now()).split('.')[0], #unix time
-    }
+            'sender': node_identifier,
+            'recipient': request.form.get('recipient'),
+            'amount': request.form.get('amount'),
+            'cardkey': 0,
+            'location': 0,
+            'date': str(datetime.datetime.now()).split('.')[0], #unix time
+            }
 
     # Check that the required fields are in the POST'ed data
     required = ['sender', 'recipient', 'amount', 'cardkey', 'location', 'date']
@@ -143,7 +143,7 @@ def user_new_transaction():
 
     # Create a new Transaction
     index = blockchain.new_transaction(
-        values['sender'], values['recipient'], values['amount'], values['cardkey'], values['location'], values['date'])
+            values['sender'], values['recipient'], values['amount'], values['cardkey'], values['location'], values['date'])
 
     response = {'message': f'Transaction will be added to Block {index}'}
     mempool = blockchain.current_transactions
@@ -175,7 +175,7 @@ def mine():
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
     block = blockchain.new_block(proof, previous_hash)
-    
+
     #add block to db
     tableblock = Block(block['index'],block['timestamp'] ,block['proof'], block['previous_hash'])
     txlist = block['transactions']
@@ -204,28 +204,28 @@ def user_mine():
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
     blockchain.new_transaction(
-        sender="0",
-        recipient=node_identifier,
-        amount=0,  #no reward
-        cardkey=0,
-        location=0,
-        date=str(datetime.datetime.now()).split('.')[0], #unix time
-    )
+            sender="0",
+            recipient=node_identifier,
+            amount=0,  #no reward
+            cardkey=0,
+            location=0,
+            date=str(datetime.datetime.now()).split('.')[0], #unix time
+            )
 
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
     block = blockchain.new_block(proof, previous_hash)
     response = {
-        'chain': blockchain.chain,
-        'length': len(blockchain.chain),
-    }
+            'chain': blockchain.chain,
+            'length': len(blockchain.chain),
+            }
     response2 = {
-        'message': "New Block Forged",
-        'index': block['index'],
-        'transactions': block['transactions'],
-        'proof': block['proof'],
-        'previous_hash': block['previous_hash'],
-    }
+            'message': "New Block Forged",
+            'index': block['index'],
+            'transactions': block['transactions'],
+            'proof': block['proof'],
+            'previous_hash': block['previous_hash'],
+            }
     return render_template("chain.html",response=response,response2=response2)
 
 #nodes
@@ -237,16 +237,16 @@ def form():
 @app.route('/transactions/test', methods=['POST'])
 def testo():
     response = {
-        'amount': request.form.get('amount'),
-        'recipient': request.form.get('recipient'),
-    }
+            'amount': request.form.get('amount'),
+            'recipient': request.form.get('recipient'),
+            }
     return jsonify(response),200
 
 @app.route('/nodes/register/u', methods=['POST'])
 def user_register_nodes():
     values = {
-        'nodes': request.form.get('address'),
-    }
+            'nodes': request.form.get('address'),
+            }
     nodes = values.get('nodes')
     if nodes is None:
         return "Error: Please supply a valid list of nodes", 400
@@ -254,10 +254,10 @@ def user_register_nodes():
     blockchain.register_node(nodes)
     parsed_url = urlparse(nodes)
     response = {
-        'message': 'New nodes have been added',
-        'IP': urlparse(nodes),
-        'total_nodes': list(blockchain.nodes),
-    }
+            'message': 'New nodes have been added',
+            'IP': urlparse(nodes),
+            'total_nodes': list(blockchain.nodes),
+            }
     nodesl= list(blockchain.nodes)
     return render_template("form.html", nodes=nodesl)
 
@@ -286,12 +286,12 @@ def consensus():
     if replaced:
         response = {
                 'message': 'Our chain was replaced',
-                'new_chain': blockchain.chain
+                'new_chain': blockchain.chain,
                 }
     else:
         response = {
                 'message': 'Our chain is authoritative',
-                'chain': blockchain.chain
+                'chain': blockchain.chain,
                 }
 
         #return jsonify(response), 200
