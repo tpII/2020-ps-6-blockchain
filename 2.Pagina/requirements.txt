@@ -1,4 +1,7 @@
-django
+flask
 gunicorn
-django-heroku
 requests
+psycopg2
+psycopg2-binary
+flask-SQLAlchemy
+SQLAlchemy

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Tx{% endblock %}
+
+{% block content %}
+
+<!-- Begin page content -->
+<main role="main" class="flex-shrink-0">
+	<div class="jumbotron d-flex text-center">
+		<form class="form" action="/transactions/new/u" method="POST">
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="sender">Sender</label>
+					<input type="text" class="form-control" id="sender" placeholder="Nodo actual" readonly>
+				</div>
+				<div class="form-group col-md-6">
+					<label for="recipient">Recipient</label>
+					<input type="text" class="form-control" id="recipient" placeholder= "Recipient" name="recipient">
+				</div>
+			</div>
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="amount">Amount</label>
+					<input type="number" class="form-control" id="amount" placeholder="0" name="amount">
+				</div>
+				<div class="form-group col-md-6">
+					<label for="cardkey">Card key</label>
+					<input type="text" class="form-control" id="cardkey" placeholder="0" readonly>
+				</div>
+			</div>
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label for="location">Location</label>
+					<input type="text" class="form-control" id="location" placeholder="0" readonly>
+				</div>
+				<div class="form-group col-md-6">
+					<label for="date">Date</label>
+					<input type="text" class="form-control" id="date" placeholder= "Fecha actual" readonly>
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary">Registrar</button>
+		</form>
+	</div>
+	<div class="jumbotron d-flex text-center">
+		<table class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>sender</th>
+					<th>recipient</th>
+					<th>amount</th>
+					<th>cardkey</th>
+					<th>location</th>
+					<th>date</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for tx in mempool %}
+				<tr>
+					<td>{{ tx.sender }}</td>
+					<td>{{ tx.recipient }}</td>
+					<td>{{ tx.amount }}</td>
+					<td>{{ tx.cardkey }}</td>
+					<td>{{ tx.location }}</td>
+					<td>{{ tx.date }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+	</div>
+</main>
+{% endblock %}

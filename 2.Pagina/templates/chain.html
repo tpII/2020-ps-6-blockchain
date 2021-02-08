@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Chain{% endblock %}
+
+{% block style %}
+    <script type="text/javascript">
+      google.charts.load('current', {packages:["orgchart"]});
+      google.charts.setOnLoadCallback(drawChart);
+
+      var aux3= {{response|safe}};
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Nodo-');
+        data.addColumn('string', 'ToolTip');
+        var auxiliar = {{response.chain|safe}};
+        // For each orgchart box, provide the name, manager, and tooltip to show.
+        data.addRows([['CHAIN','','']]);
+        for(var i=0;i<auxiliar.length;i++){
+          data.addRows([[{'v':i.toString(), 'f': 'Index: ' +auxiliar[i].index + '<br>' + 'Proof: ' + auxiliar[i].proof + '<br>' + 'Timestamp: ' + auxiliar[i].timestamp + '<br>' + 'Previous Hash: ' +  auxiliar[i].previous_hash},'CHAIN','']]);
+          if (auxiliar[i].transactions.length>0){
+            for(var j=0;j<auxiliar[i].transactions.length;j++){
+              if (j==0){
+                data.addRows([[{'v': i.toString() + 'T' + j.toString(), 'f': 'Transaction: ' + j.toString() + '<br>' + 
+              'Amount: ' + auxiliar[i].transactions[j].amount + '<br>' + 'CardKey: ' + auxiliar[i].transactions[j].cardkey + '<br>' +
+              'Date: ' + auxiliar[i].transactions[j].date + '<br>' + 'Location: ' + auxiliar[i].transactions[j].location + '<br>' + 
+              'Recipient: ' + auxiliar[i].transactions[j].recipient + '<br>' + 'Sender: ' + auxiliar[i].transactions[j].sender },i.toString(),'']]);
+              }else{
+                data.addRows([[{'v': i.toString() + 'T' + j.toString(), 'f': 'Transaction: ' + j.toString() + '<br>' + 
+              'Amount: ' + auxiliar[i].transactions[j].amount + '<br>' + 'CardKey: ' + auxiliar[i].transactions[j].cardkey + '<br>' +
+              'Date: ' + auxiliar[i].transactions[j].date + '<br>' + 'Location: ' + auxiliar[i].transactions[j].location + '<br>' + 
+              'Recipient: ' + auxiliar[i].transactions[j].recipient + '<br>' + 'Sender: ' + auxiliar[i].transactions[j].sender },i.toString() + 'T' + (j-1).toString(),'']]);
+              }
+
+            }
+          }  
+        }
+
+        
+        // Create the chart.
+        var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+        // Draw the chart, setting the allowHtml option to true for the tooltips.
+        chart.draw(data, {'allowHtml':true});
+      }
+   </script>
+   {% if response2 != undefined %}
+   			<script type="text/javascript">
+          $(window).load(function(){
+            var lpm = {{response2|safe}};
+            json_data = JSON.stringify(lpm);
+            $(".modal-body").text(json_data);
+            $(".modal-title").append({{index}});
+            $('#exampleModal').modal('show');
+          });
+         </script>
+  {% elif response3 != undefined %}
+  <script type="text/javascript">
+    $(window).load(function(){
+      var lpm = {{response3|safe}};
+      $(".modal-body").text(lpm.message);
+      $(".modal-title").text("Chain Verified");
+      $('#exampleModal').modal('show');
+    });
+   </script>
+  {% endif %}
+{% endblock %}
+	  
+{% block content %}
+<!-- Begin page content -->
+<main role="main" class="flex-shrink-0">
+<!-- Button trigger modal -->
+{% if response2 != undefined or response3 != undefined %}
+<!-- Modal -->
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="false">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Nodo agregado!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal"">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+	<div class="jumbotron d-flex text-center">
+        <div id="chart_div" style="overflow-x: scroll;"></div>
+  </div>
+{% endblock %}
